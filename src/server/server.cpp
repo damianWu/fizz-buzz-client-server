@@ -75,6 +75,16 @@ std::shared_ptr<Session> Session::get_ptr() { return shared_from_this(); }
 
 /* ========================================================================== */
 
+void run_server(const asio::ip::port_type port) {
+    try {
+        asio::io_context context;
+        Server srv{context, port};
+        context.run();
+    } catch (const std::exception& e) {
+        std::cerr << "Exception: " << e.what() << "\n";
+    }
+}
+
 std::string fizz_buzz(const int number) {
     if (number != 0) {
         int mod3{number % 3};
