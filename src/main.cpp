@@ -15,7 +15,6 @@ int main() {
         uint16_t port{11234};
         server::run_server(port);
 
-        // setlocale(LC_ALL, "polish");
         client::run_client("localhost", port);
     } catch (const std::exception& e) {
         std::cerr << "Exception catch in main function with message: "
