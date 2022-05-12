@@ -4,7 +4,7 @@
 
 int main() {
     try {
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         std::cerr << "Exception catch in main function with message: "
                   << e.what() << '\n';
     } catch (...) {
