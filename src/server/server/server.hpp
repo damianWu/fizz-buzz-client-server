@@ -1,0 +1,5 @@
+// Copyright [2022] <@damianWu>
+#ifndef SRC_SERVER_SERVER_SERVER_HPP_
+#define SRC_SERVER_SERVER_SERVER_HPP_
+
+#endif  // SRC_SERVER_SERVER_SERVER_HPP_

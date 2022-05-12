@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# VS Code
+build/
+.clang-format
+.cache/
+.vscode/

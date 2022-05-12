@@ -1,0 +1,6 @@
+// Copyright [2022] <@damianWu>
+
+#ifndef SRC_CLIENT_CLIENT_CLIENT_HPP_
+#define SRC_CLIENT_CLIENT_CLIENT_HPP_
+
+#endif  // SRC_CLIENT_CLIENT_CLIENT_HPP_
