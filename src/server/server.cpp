@@ -14,6 +14,24 @@
 
 namespace server {
 
+Server::Server(asio::io_context& context, const asio::ip::port_type port)
+    : tcp_acceptor_{context,
+                    asio::ip::tcp::endpoint{asio::ip::tcp::v4(), port}},
+      tcp_socket_{context} {
+    std::clog << "Server works on port: " << port << '\n';
+}
+
+void Server::accept() {
+    tcp_acceptor_.async_accept(tcp_socket_, [this](std::error_code ec) {
+        if (!ec) {
+            Session::create(std::move(tcp_socket_))->start();
+        }
+        accept();
+    });
+}
+
+/* ========================================================================== */
+
 void Session::read() {
     auto self{get_ptr()};
 
