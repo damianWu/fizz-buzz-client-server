@@ -2,10 +2,14 @@
 
 #include "server/server.hpp"
 
+#include <exception>
 #include <iostream>
 // #include <ostream>
+#include <memory>
 #include <system_error>
 
+#include "asio/io_context.hpp"
+#include "asio/ip/basic_endpoint.hpp"
 #include "asio/ip/tcp.hpp"
 
 namespace server {
