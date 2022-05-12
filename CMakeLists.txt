@@ -83,7 +83,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 # Subdirectories
 # ----------------------
 # add_subdirectory(tests)
-add_subdirectory(src/server)
+# add_subdirectory(src/server)
 add_subdirectory(src/client)
 
 
@@ -98,4 +98,4 @@ add_executable(${PROJECT_NAME}  src/main.cpp)
 # ----------------------
 # Link libraries target with executable target
 # ----------------------
-target_link_libraries(${PROJECT_NAME}   server_lib  client_lib  pthread)
+target_link_libraries(${PROJECT_NAME}     client_lib  pthread)

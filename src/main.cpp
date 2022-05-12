@@ -7,15 +7,13 @@
 #include <iostream>
 
 #include "client/client.hpp"
-#include "server/server.hpp"
-#include "server/server/server.hpp"
+// #include "server/server.hpp"
 
 int main() {
     try {
-        uint16_t port{11234};
-        server::run_server(port);
+        uint16_t port{5235};
+        // server::run_server(port);
 
-        // setlocale(LC_ALL, "polish");
         client::run_client("localhost", port);
     } catch (const std::exception& e) {
         std::cerr << "Exception catch in main function with message: "
