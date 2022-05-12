@@ -11,14 +11,19 @@
 namespace server {
 
 class Session : public std::enable_shared_from_this<Session> {
+    // TODO(@damianWu) dodaj const?
+    void start();
+
     std::shared_ptr<Session> get_ptr();
 
     [[nodiscard]] static std::shared_ptr<Session> create(asio::ip::tcp::socket);
 
  private:
     explicit Session(asio::ip::tcp::socket);
+    void read();
+    void write(std::string_view response);
 
-    std::vector<char> data_;
+    std::array<char, 1024> data_;
     asio::ip::tcp::socket tcp_socket_;
 };
 
