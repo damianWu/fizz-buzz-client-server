@@ -2,13 +2,35 @@
 
 #include "server/server.hpp"
 
+#include <exception>
 #include <iostream>
 // #include <ostream>
+#include <memory>
 #include <system_error>
 
+#include "asio/io_context.hpp"
+#include "asio/ip/basic_endpoint.hpp"
 #include "asio/ip/tcp.hpp"
 
 namespace server {
+
+Server::Server(asio::io_context& context, const asio::ip::port_type port)
+    : tcp_acceptor_{context,
+                    asio::ip::tcp::endpoint{asio::ip::tcp::v4(), port}},
+      tcp_socket_{context} {
+    std::clog << "Server works on port: " << port << '\n';
+}
+
+void Server::accept() {
+    tcp_acceptor_.async_accept(tcp_socket_, [this](std::error_code ec) {
+        if (!ec) {
+            Session::create(std::move(tcp_socket_))->start();
+        }
+        accept();
+    });
+}
+
+/* ========================================================================== */
 
 void Session::read() {
     auto self{get_ptr()};
@@ -52,6 +74,16 @@ std::shared_ptr<Session> Session::get_ptr() { return shared_from_this(); }
 }
 
 /* ========================================================================== */
+
+void run_server(const asio::ip::port_type port) {
+    try {
+        asio::io_context context;
+        Server srv{context, port};
+        context.run();
+    } catch (const std::exception& e) {
+        std::cerr << "Exception: " << e.what() << "\n";
+    }
+}
 
 std::string fizz_buzz(const int number) {
     if (number != 0) {
