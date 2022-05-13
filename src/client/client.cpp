@@ -1,49 +1,81 @@
 // Copyright [2022] <@damianWu>
 
-#include <cstdint>
+#include "client/client.hpp"
+
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 
 #include "asio.hpp"
-#include "asio/buffered_write_stream.hpp"
 #include "asio/connect.hpp"
 #include "asio/io_context.hpp"
 #include "asio/registered_buffer.hpp"
 
+namespace {
+
+constexpr int start_interval{1};
+constexpr int end_interval{99};
+
+}  // namespace
+
 namespace client {
 
-void run_client(std::string_view host, uint16_t port) {
+void run_client(std::string_view host, asio::ip::port_type port) {
+    using atcp = asio::ip::tcp;
     try {
         asio::io_context context;
-        asio::ip::tcp::socket tcp_socket{context};
-        asio::ip::tcp::resolver resolver{context};
-        asio::connect(tcp_socket,
-                      resolver.resolve({host.data(), std::to_string(port)}));
-        while (true) {
-            std::cout << "Enter number [1-99]: ";
+        atcp::socket tcp_socket{context};
+        atcp::resolver resolver{context};
 
-            int number{};
-            std::cin >> number;
-            if (std::cin.fail() || number < 1 || number > 99) {
-                break;
-            }
+        auto end_points{resolver.resolve(host.data(), std::to_string(port))};
+        asio::connect(tcp_socket, end_points);
 
-            auto request{std::to_string(number)};
-            // TODO(@damianWu)  z czym związany jest socket? Skąd wie z kim się
-            // komunikować?
-            tcp_socket.write_some(asio::buffer(request, request.length()));
-
-            std::array<char, 1024> reply;
-            // reply length in bytes
-            auto reply_length{
-                tcp_socket.read_some((asio::buffer(reply, reply.size())))};
-            std::cout << "answer: " << '\n';
-            auto reply_msg{std::string(reply.data(), reply_length)};
-            std::cout << std::endl;
-        }
+        communicate(&tcp_socket);
     } catch (const std::exception& e) {
-        std::cerr << "Exception: " << e.what() << "\n";
+        std::cerr << "client::run_client() function throws exception: "
+                  << e.what() << "\n";
     }
 }
+
+void communicate(asio::ip::tcp::socket* const tcp_socket) {
+    while (true) {
+        std::cout << "Enter number [" << start_interval << ", " << end_interval
+                  << "]: ";
+
+        const int number{read_number()};
+        send_number(number, tcp_socket);
+
+        const auto reply_message{receive_reply(tcp_socket)};
+        std::cout << "Reply message: " << reply_message << '\n' << std::endl;
+    }
+}
+
+std::string receive_reply(asio::ip::tcp::socket* const tcp_socket) {
+    std::array<char, 1024> reply{};
+    // bytes received
+    auto bytes_read{tcp_socket->read_some((asio::buffer(reply, reply.size())))};
+    return std::string(reply.data(), bytes_read);
+}
+
+void send_number(const int number, asio::ip::tcp::socket* const tcp_socket) {
+    auto request{std::to_string(number)};
+    tcp_socket->write_some(asio::buffer(request, request.length()));
+}
+
+int read_number() {
+    int number{};
+    std::cin >> number;
+
+    verify_number(number);
+
+    return number;
+}
+
+void verify_number(const int number) {
+    if (std::cin.fail() || number < start_interval || number > end_interval) {
+        throw std::runtime_error("client::verify_number() throws exception");
+    }
+}
+
 }  // namespace client
