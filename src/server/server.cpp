@@ -4,7 +4,6 @@
 
 #include <exception>
 #include <iostream>
-// #include <ostream>
 #include <memory>
 #include <system_error>
 
@@ -14,15 +13,17 @@
 
 namespace server {
 
-Server::Server(asio::io_context& context, const asio::ip::port_type port)
-    : tcp_acceptor_{context,
+Server::Server(asio::io_context* context, const asio::ip::port_type port)
+    : tcp_acceptor_{*context,
                     asio::ip::tcp::endpoint{asio::ip::tcp::v4(), port}},
-      tcp_socket_{context} {
-    std::clog << "Server works on port: " << port << '\n';
+      tcp_socket_{*context} {
+    std::clog << "Server starts. Server works on port: " << port << '\n';
+    accept();
 }
 
 void Server::accept() {
     tcp_acceptor_.async_accept(tcp_socket_, [this](std::error_code ec) {
+        std::clog << "Server::accept() called. Connected to client." << '\n';
         if (!ec) {
             Session::create(std::move(tcp_socket_))->start();
         }
@@ -33,17 +34,26 @@ void Server::accept() {
 /* ========================================================================== */
 
 void Session::read() {
-    auto self{get_ptr()};
+    std::shared_ptr<Session> self{get_ptr()};
 
     tcp_socket_.async_read_some(
         asio::buffer(data_, data_.size()),
         [this, self](const std::error_code ec,
                      const std::size_t bytes_transferred) {
             if (!ec) {
-                auto number{std::string(data_.data(), bytes_transferred)};
-                auto result{fizz_buzz(std::atoi(number.c_str()))};
-                std::cout << "number: " << result << std::endl;
-                write(result);
+                auto received_number{
+                    std::string(data_.data(), bytes_transferred)};
+                std::clog << "Received number: " << received_number
+                          << std::endl;
+                auto reply_message{
+                    fizz_buzz(std::atoi(received_number.c_str()))};
+                std::clog << "Reply message: " << reply_message << '\n'
+                          << std::endl;
+                write(reply_message);
+            } else {
+                std::clog << "Session::read() received error."
+                          << " Error code value: " << ec.value() << '.'
+                          << " Error code message: " << ec.message() << '\n';
             }
         });
 }
@@ -78,7 +88,7 @@ std::shared_ptr<Session> Session::get_ptr() { return shared_from_this(); }
 void run_server(const asio::ip::port_type port) {
     try {
         asio::io_context context;
-        Server srv{context, port};
+        Server srv{&context, port};
         context.run();
     } catch (const std::exception& e) {
         std::cerr << "Exception: " << e.what() << "\n";

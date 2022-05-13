@@ -15,8 +15,7 @@ namespace server {
 
 class Server {
  public:
-    // TODO(@damianWu) make context const?
-    Server(asio::io_context& context, asio::ip::port_type port);
+    Server(asio::io_context* context, asio::ip::port_type port);
 
  private:
     void accept();
@@ -29,12 +28,15 @@ class Session : public std::enable_shared_from_this<Session> {
  public:
     void start();
 
+    // Returns correct shared pointer to this object
     std::shared_ptr<Session> get_ptr();
 
+    // Creates unique Session object and returns pointer to this obj
     [[nodiscard]] static std::shared_ptr<Session> create(asio::ip::tcp::socket);
 
  private:
     explicit Session(asio::ip::tcp::socket);
+
     void read();
     void write(std::string_view response);
 
