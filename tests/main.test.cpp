@@ -1,4 +1,4 @@
-// Copyright [2022] <damWu>
+// Copyright [2022] <https://github.com/damianWu>
 #include <gtest/gtest.h>
 
 // Retrieves standard std::cin configuration

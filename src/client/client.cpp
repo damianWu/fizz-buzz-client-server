@@ -1,4 +1,4 @@
-// Copyright [2022] <@damianWu>
+// Copyright [2022] <https://github.com/damianWu>
 
 #include "client/client.hpp"
 

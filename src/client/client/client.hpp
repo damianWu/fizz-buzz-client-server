@@ -1,4 +1,4 @@
-// Copyright [2022] <@damianWu>
+// Copyright [2022] <https://github.com/damianWu>
 
 #ifndef SRC_CLIENT_CLIENT_CLIENT_HPP_
 #define SRC_CLIENT_CLIENT_CLIENT_HPP_
